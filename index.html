@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classificação de Risco Hospitalar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Classificação de Risco no Atendimento Hospitalar</h1>
+        
+        <!-- Adicionar contador de pacientes e tempo médio de espera -->
+        <div class="status-panel">
+            <div class="status-item">
+                <h3>Pacientes na Fila</h3>
+                <span id="patientCount">0</span>
+            </div>
+            <div class="status-item">
+                <h3>Tempo Médio de Espera</h3>
+                <span id="averageWaitTime">-</span>
+            </div>
+        </div>
+
+        <!-- Formulário existente com campos adicionais -->
+        <div class="patient-form">
+            <h2>Cadastro do Paciente</h2>
+            <form id="patientForm">
+                <div class="form-group">
+                    <label for="name">Nome Completo:</label>
+                    <input type="text" id="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cpf">CPF:</label>
+                    <input type="text" id="cpf" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Telefone:</label>
+                    <input type="tel" id="phone" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="address">Endereço:</label>
+                    <input type="text" id="address" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="symptoms">Sintomas:</label>
+                    <textarea id="symptoms" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="riskLevel">Classificação de Risco:</label>
+                    <select id="riskLevel" required>
+                        <option value="1">Emergência</option>
+                        <option value="2">Muito Urgente</option>
+                        <option value="3">Urgente</option>
+                        <option value="4">Pouco Urgente</option>
+                        <option value="5">Não Urgente</option>
+                    </select>
+                </div>
+
+                <!-- Campos adicionais -->
+                <div class="form-group">
+                    <label for="age">Idade:</label>
+                    <input type="number" id="age" required min="0" max="150">
+                </div>
+
+                <div class="form-group">
+                    <label for="temperature">Temperatura (°C):</label>
+                    <input type="number" id="temperature" step="0.1" min="30" max="50">
+                </div>
+
+                <div class="form-group">
+                    <label for="bloodPressure">Pressão Arterial:</label>
+                    <input type="text" id="bloodPressure" placeholder="Ex: 12/8">
+                </div>
+
+                <div class="form-group">
+                    <label for="allergies">Alergias:</label>
+                    <textarea id="allergies"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="medications">Medicamentos em uso:</label>
+                    <textarea id="medications"></textarea>
+                </div>
+
+                <button type="submit">Adicionar à Fila</button>
+            </form>
+        </div>
+
+        <!-- Seção de fila com informações adicionais -->
+        <div class="queue-section">
+            <h2>Fila de Atendimento</h2>
+            <div class="queue-filters">
+                <button onclick="filterByRisk('all')" class="active filter-btn">Todos</button>
+                <button onclick="filterByRisk('emergency')" class="filter-btn emergency">Emergência</button>
+                <button onclick="filterByRisk('very-urgent')" class="filter-btn very-urgent">Muito Urgente</button>
+                <button onclick="filterByRisk('urgent')" class="filter-btn urgent">Urgente</button>
+                <button onclick="filterByRisk('semi-urgent')" class="filter-btn semi-urgent">Pouco Urgente</button>
+                <button onclick="filterByRisk('non-urgent')" class="filter-btn non-urgent">Não Urgente</button>
+            </div>
+            <div id="patientQueue" class="patient-queue"></div>
+        </div>
+
+        <!-- Seção de estatísticas -->
+        <div class="statistics-section">
+            <h2>Estatísticas de Atendimento</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Atendimentos Hoje</h3>
+                    <span id="todayAttendances">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Tempo Médio de Atendimento</h3>
+                    <span id="averageAttendanceTime">0 min</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Casos de Emergência</h3>
+                    <span id="emergencyCases">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="risk-levels">
+            <div class="risk-card emergency">
+                <h2>1. Casos de Emergência</h2>
+                <p class="description">Necessitam de atendimento imediato.</p>
+                <p class="action">Atendimento prioritário.</p>
+            </div>
+
+            <div class="risk-card very-urgent">
+                <h2>2. Casos Muito Urgentes</h2>
+                <p class="description">Necessitam de atendimento praticamente imediato.</p>
+                <p class="action">Atendimento prioritário com alta urgência.</p>
+            </div>
+
+            <div class="risk-card urgent">
+                <h2>3. Casos de Urgência</h2>
+                <p class="description">Necessitam de atendimento rápido, mas podem aguardar.</p>
+                <p class="action">Atendimento em tempo reduzido.</p>
+            </div>
+
+            <div class="risk-card semi-urgent">
+                <h2>4. Casos Pouco Urgentes</h2>
+                <p class="description">Podem aguardar atendimentos ou serem encaminhados para outros serviços de saúde.</p>
+                <p class="action">Atendimento programado ou agendado.</p>
+            </div>
+
+            <div class="risk-card non-urgent">
+                <h2>5. Casos Não Urgentes</h2>
+                <p class="description">Podem aguardar atendimento ou serem encaminhados para outros serviços de saúde.</p>
+                <p class="action">Atendimento não prioritário, podendo ser agendado para outro momento.</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <h3>Considerações Finais</h3>
+            <p>Esse sistema de triagem é fundamental para garantir que os pacientes recebam o atendimento adequado conforme a urgência de suas condições, ajudando a otimizar o fluxo de atendimento no hospital.</p>
+            <div class="emergency-contacts">
+                <h4>Contatos de Emergência</h4>
+                <ul>
+                    <li>SAMU: 192</li>
+                    <li>Bombeiros: 193</li>
+                    <li>Polícia: 190</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let startTime; // Variável para armazenar o tempo de início
+
+        // Tempos médios de espera em minutos para cada classificação de risco
+        const averageWaitTimes = {
+            "1": 5,  // Emergência
+            "2": 10, // Muito Urgente
+            "3": 20, // Urgente
+            "4": 30, // Pouco Urgente
+            "5": 60  // Não Urgente
+        };
+
+        document.getElementById('patientForm').addEventListener('focusin', function() {
+            startTime = Date.now(); // Captura o tempo quando o formulário é focado
+        });
+
+        document.getElementById('patientForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Impede o envio do formulário
+
+            // Captura os dados do formulário
+            const name = document.getElementById('name').value;
+            const riskLevel = document.getElementById('riskLevel').value;
+
+            // Cria um novo elemento para a fila de atendimento
+            const patientQueue = document.getElementById('patientQueue');
+            const patientItem = document.createElement('div');
+            patientItem.textContent = `Paciente: ${name}, Classificação de Risco: ${riskLevel}`;
+            patientQueue.appendChild(patientItem);
+
+            // Atualiza o contador de pacientes na fila
+            const patientCount = document.getElementById('patientCount');
+            patientCount.textContent = parseInt(patientCount.textContent) + 1; // Incrementa o contador
+
+            // Atualiza as estatísticas
+            const todayAttendances = document.getElementById('todayAttendances');
+            todayAttendances.textContent = parseInt(todayAttendances.textContent) + 1; // Incrementa atendimentos
+
+            if (riskLevel === "1") { // Se for emergência
+                const emergencyCases = document.getElementById('emergencyCases');
+                emergencyCases.textContent = parseInt(emergencyCases.textContent) + 1; // Incrementa casos de emergência
+            }
+
+            // Atualiza o tempo médio de espera
+            const averageWaitTime = document.getElementById('averageWaitTime');
+            averageWaitTime.textContent = averageWaitTimes[riskLevel] + ' min'; // Define o tempo médio de espera
+
+            // Calcula o tempo de preenchimento do formulário
+            const endTime = Date.now();
+            const timeTaken = (endTime - startTime) / 1000; // Tempo em segundos
+
+            // Atualiza o tempo médio de atendimento
+            const averageAttendanceTime = document.getElementById('averageAttendanceTime');
+            const currentAverage = parseFloat(averageAttendanceTime.textContent) || 0;
+            const newAverage = ((currentAverage * (parseInt(todayAttendances.textContent) - 1)) + timeTaken) / parseInt(todayAttendances.textContent);
+            averageAttendanceTime.textContent = newAverage.toFixed(2) + ' seg'; // Atualiza o tempo médio
+
+            // Limpa o formulário após a submissão
+            this.reset();
+        });
+    </script>
+</body>
+</html>
